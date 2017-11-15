@@ -9,7 +9,6 @@ const webhook = require('jovo-framework').Webhook;
 
 app.setConfig({
     requestLogging: true,
-    responseLogging: true,
     // other configurations
 });
 
@@ -31,11 +30,61 @@ webhook.post('/webhook', function(req, res) {
 
 const handlers = {
 
-    'LAUNCH': function() {
-        app.toIntent('HelloWorldIntent');
+	'LAUNCH': function() {
+        app.tell('Welcome to Emerald. Start by opening a project you created in our webapp');
+
+    },    
+
+    //'TestState' : {
+
+    	/*'EndTestIntent' : function() {
+
+    	},*/
+
+    	'StartTestIntent' : function() {
+    		app.tell("This has been mapped to the StartTestIntent");
+    	},
+
+    	'WizardIntent' : function(command) {
+    		app.tell("This is the famous wizard of Oz and he helps you to " + command);
+    	},
+
+   // },
+
+/*
+    'ProjectState' : {
+        
+        'CloseProjectIntent' : function() {
+           // do something
+        },
+
+        'ConnectionIntent' : function() {
+        	app.tell('The connection is stable and the wizard is logged in.');
+        },
+
+        'SwitchProjectIntent' : function() {
+
+        },
+
+        'StartTestIntent' : function() {
+
+        },
     },
 
-    'HelloWorldIntent': function() {
-        app.tell('Hello World!');
+    'LoadProjectIntent' : function(project) {
+
     },
+
+    'ListProjectsIntent' : function() {
+
+    },
+
+    'Unhandled' : function() {
+
+    },
+
+    'END' : function() {
+
+    } */
+
 };
