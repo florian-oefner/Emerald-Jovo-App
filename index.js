@@ -6,6 +6,7 @@
 
 const app = require('jovo-framework').Jovo;
 const webhook = require('jovo-framework').Webhook;
+//app.user().data.state = null;
 
 app.setConfig({
     requestLogging: true,
@@ -23,6 +24,9 @@ webhook.post('/webhook', function(req, res) {
     app.execute();
 });
 
+var io = require('socket.io-client');
+var socket = io('http://localhost:8000');
+
 
 // =================================================================================
 // App Logic
@@ -32,26 +36,40 @@ const handlers = {
 
 	'LAUNCH': function() {
         app.tell('Welcome to Emerald. Start by opening a project you created in our webapp');
+    },
 
-    },    
+    'NEW_SESSION': function() {
+    	if(app.user().data.state != null) {
+    		app.toStateIntent(app.user().data.state, app.getIntentName());
+    	} else {
+    		app.toIntent(app.getIntentName());
+    	}
+ 	},
 
-    //'TestState' : {
+	'StartTestIntent' : function() {
+		app.user().data.state = 'TestState';
+		app.followUpState('TestState').tell("The test has been started.");
+	},    
 
-    	/*'EndTestIntent' : function() {
+    'TestState' : {
 
-    	},*/
-
-    	'StartTestIntent' : function() {
-    		app.tell("This has been mapped to the StartTestIntent");
+    	'EndTestIntent' : function() {
+			app.user().data.state = null;
+			app.tell("The test has been ended.");
     	},
 
     	'WizardIntent' : function(command) {
-    		app.tell("This is the famous wizard of Oz and he helps you to " + command);
+    		socket.emit('wizard message', command);
+            app.tell("This is the famous wizard of Oz and he helps you to " + command);
     	},
 
-   // },
+    	'Unhandled' : function() {
+    		app.tell("This command is not allowed in test mode.");
+    	}
 
-/*
+    },
+
+
     'ProjectState' : {
         
         'CloseProjectIntent' : function() {
@@ -72,11 +90,18 @@ const handlers = {
     },
 
     'LoadProjectIntent' : function(project) {
-
+    	
     },
 
     'ListProjectsIntent' : function() {
-
+    	let speech = app.speechBuilder()
+                .addText('Your current projects are:')
+                .addBreak('300ms')
+               	.addText('Hello World')
+                .addBreak('200ms')
+            	.addText('Learning Typography')
+                .addBreak('200ms')
+		app.tell(speech);
     },
 
     'Unhandled' : function() {
@@ -85,6 +110,9 @@ const handlers = {
 
     'END' : function() {
 
-    } */
+    }
 
 };
+
+
+
